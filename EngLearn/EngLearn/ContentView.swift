@@ -14,6 +14,7 @@ struct ContentView: View {
                     // Hide suggestions when the user commits a search
                     showSuggestions = false
                     performSearch()
+                    savedSearchText()
                 })
 
                 if showSuggestions {
@@ -26,6 +27,8 @@ struct ContentView: View {
                                 .shadow(radius: 5)
                                 .padding(.top, 10)
                         }
+                        .background(Color.yellow)
+                        .frame(width: geometry.size.width, height: (suggestionListHeight ?? 0.0) + 20.0)
                     }
                     .onAppear {
                         // Calculate the suggestion list height based on content size
@@ -33,14 +36,24 @@ struct ContentView: View {
                     }
                 }
 
-                List(searchResults, id: \.id) { result in
-                    HStack {
-                        Text(result.name)
-                        Spacer()
-                        Image(systemName: result.image)
+                if searchResults.isEmpty {
+                    Spacer() // Pushes the "No Results" label to the center of the view
+                    Text("No Results")
+                        .font(.headline)
+                        .foregroundColor(.gray)
+                        .padding()
+                    Spacer() // Pushes the label further down for vertical centering
+                } else {
+                    List(searchResults, id: \.id) { result in
+                        HStack {
+                            Text(result.name)
+                            Spacer()
+                            Image(systemName: result.image)
+                        }
+                        .background(Color.red)
                     }
+                    .background(Color.green) // Yellow background for search results
                 }
-                .background(Color.yellow.opacity(0.5)) // Yellow background for search results
             }
             .navigationTitle("Search Example")
         }
@@ -59,11 +72,13 @@ struct ContentView: View {
             searchResults = allItems.filter { item in
                 item.name.lowercased().contains(searchText.lowercased())
             }
-
-            // Add the current search text to the search history if it's not already there
-            if !searchHistory.contains(searchText) {
-                searchHistory.append(searchText)
-            }
+        }
+    }
+    
+    private func savedSearchText() {
+        // Add the current search text to the search history if it's not already there
+        if !searchHistory.contains(searchText) {
+            searchHistory.append(searchText)
         }
     }
 }
